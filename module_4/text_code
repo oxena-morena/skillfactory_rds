@@ -29,7 +29,6 @@ WHERE (f.actual_arrival BETWEEN '2017-04-01' AND '2017-09-01')
   AND (f.status = 'Arrived')
  
 Задание 4.3
-6 points possible (graded)
 Вопрос 1. Сколько всего рейсов было отменено по данным базы?
 select count(f.flight_id)
 from dst_project.flights f
@@ -39,24 +38,19 @@ WHERE
 /*Вопрос 2. Сколько самолетов моделей типа Boeing, Sukhoi Superjet, Airbus находится в базе авиаперевозок? */
 select count(a.model)
 from dst_project.aircrafts a
-
 WHERE
- a.model like 'Sukhoi %'
-
-
+a.model like 'Sukhoi %'
 
 /*Вопрос 3. В какой части (частях) света находится больше аэропортов? */
 select count(timezone)
 from dst_project.airports a
-
 WHERE
- a.timezone like 'Australia%'
+a.timezone like 'Australia%'
 
 /*Вопрос 4. У какого рейса была самая большая задержка прибытия за все время сбора данных? Введите id рейса (flight_id). */
- SELECT f.flight_id,
-       (f.actual_arrival - f.scheduled_arrival) time_delta
+SELECT f.flight_id,
+      (f.actual_arrival - f.scheduled_arrival) time_delta
 from dst_project.flights f
-
 where  (f.actual_arrival - f.scheduled_arrival) is not null
 order by 2 desc
 
@@ -67,7 +61,6 @@ order by 2 desc
 from dst_project.flights 
 
 /* Задание 4.5
-
 Вопрос 1. Мест какого класса у SU9 больше всего?  */
  SELECT
      s.fare_conditions, count(s.seat_no)
@@ -79,10 +72,10 @@ group by  s.fare_conditions
 
 /*Вопрос 2. Сколько минут составляет запланированное время полета в самом длительном рейсе?  */
  SELECT
-       (f.scheduled_arrival-f.scheduled_departure) dif
+select date_part('hour', scheduled_arrival - scheduled_departure) * 60 +
+date_part('minute', scheduled_arrival - scheduled_departure)
 from dst_project.flights f
 where (f.scheduled_arrival-f.scheduled_departure) is not null
-
 order by 1 desc
 
 select date_part('hour', scheduled_arrival - scheduled_departure) * 60 +
@@ -100,8 +93,9 @@ order by 1 desc
        date_part('minute', actual_arrival-actual_departure))
 from dst_project.flights f
 where (f.actual_arrival-actual_departure) is not null
+
 /*  Вопрос 2. Какую самую минимальную стоимость составило бронирование за всю историю?  */
- SELECT
+SELECT
     min(b.total_amount)
 from dst_project.bookings b
 
