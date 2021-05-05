@@ -1,0 +1,38 @@
+датасет
+WITH table_1 AS (SELECT f.flight_id, 
+       f.flight_no,
+       f.departure_airport,
+       f.scheduled_departure,
+       f.arrival_airport, 
+       f.actual_departure,
+       f.actual_arrival,
+       f.status,
+       date_part('hour', actual_arrival - actual_departure) * 60 +
+       date_part('minute', actual_arrival - actual_departure) flight_time,
+       date_part('month', actual_arrival) flight_month,
+       a.aircraft_code
+FROM dst_project.flights f
+    LEFT JOIN dst_project.aircrafts a ON f.aircraft_code = a.aircraft_code),
+table_2 AS (SELECT flight_id, sum(amount) total_amount
+FROM dst_project.ticket_flights
+GROUP BY 1),
+  table_3 AS (SELECT a.aircraft_code, a.model,
+        count(s.seat_no) seats
+FROM dst_project.aircrafts a
+LEFT JOIN dst_project.seats s on a.aircraft_code=s.aircraft_code
+GROUP BY 1),
+ ticket_class AS (
+   SELECT tf.flight_id,
+                count(CASE WHEN tf.fare_conditions = 'Economy' THEN tf.fare_conditions END)  AS ticket_economy,
+                count(CASE WHEN tf.fare_conditions = 'Comfort' THEN tf.fare_conditions END)  AS ticket_comfort,
+                count(CASE WHEN tf.fare_conditions = 'Business' THEN tf.fare_conditions END) AS ticket_bisiness
+         FROM dst_project.ticket_flights AS tf
+         GROUP BY 1)        
+select *
+FROM table_1 t1
+LEFT JOIN table_2 t2 on t1.flight_id = t2.flight_id
+LEFT JOIN table_3 t3 ON t3.aircraft_code=t1.aircraft_code
+LEFT JOIN ticket_class tc on tc.flight_id= t1.flight_id
+WHERE departure_airport = 'AAQ'
+  AND (date_trunc('month', scheduled_departure) in ('2017-01-01', '2017-02-01', '2017-12-01'))
+  AND status not in ('Cancelled')
